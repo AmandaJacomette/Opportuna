@@ -26,22 +26,32 @@ O sistema ideal para encontrar a sua oportunidade de emprego!
     - Criar, Editar e Excluir vagas de emprego.
     - Visualizar candidaturas.
     - Evoluir candidatos nas fases da vaga.
+    - Rejeitar candidatos inscritos.
   - Candidato:
     - Cadastrar perfil.
     - Visualizar vagas disponiveis.
     - Increver-se em vagas.
-    - Visualizar e desistir de vagas inscritas.
+    - Visualizar vagas inscritas.
 
 <!-- Apresentar restrições de funcionalidades e de escopo. -->
 ### 3. Restrições
 
-  Neste trabalho não serão considerados ...
+  Neste trabalho não serão considerados:
+   - Diferentes perfis dentro da empresa.
+   - Envios de emails e comunicados.
 
 <!-- Construir alguns protótipos para a aplicação, disponibilizá-los no Github e descrever o que foi considerado. //-->
 ### 4. Protótipo
 
-  Protótipos para as páginas (descrever quais páginas) foram elaborados, e podem ser encontrados em...
+  Protótipos para as páginas abaixo foram elaborados, e podem ser encontrados em: https://www.figma.com/design/brMz3iirMEMHxxCZq4VXXN/Opportuna?node-id=0-1&t=jNG53lUZDGGYA84Z-1
 
-### 5. Referências
-
-  Referências podem ser incluídas, caso necessário. Utilize o padrão ABNT.
+  - Tela Geral
+  - Login (Empresa e Candidato)
+  - Cadastro (Empresa e Candidato)
+  - Tela inicial (Empresa e Candidato)
+  - Vagas disponiveis (Candidato)
+  - Vagas inscritas (Candidato)
+  - Perfil (Candidato)
+  - Vagas Abertas (Empresa)
+  - Candidatos inscritos (Empresa)
+  - Criar nova vaga (Empresa)
