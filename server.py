@@ -75,19 +75,24 @@ def consultar_db(query):
         return []
 
 def inserir_db(query):
+    con = None
+    cur = None
     try:
         con = DatabaseConnection().get_connection()
         cur = con.cursor()
         cur.execute(query)
         con.commit()
-        cur.close()
+        return response_format(True, 'Sucesso!')
     except (Exception, psycopg2.DatabaseError) as error:
         print(f"Erro ao inserir no banco de dados: {error}")
-        con.rollback()  # Rollback da transação em caso de erro
-        cur.close()
-    finally:
         if con:
+            con.rollback()  # Rollback da transação em caso de erro
+        return response_format(True, f"Erro ao inserir no banco de dados: {error}")
+    finally:
+        if cur:
             cur.close()
+        if con:
+            con.close()
 
 
 # Inicializando o Flask
@@ -132,6 +137,7 @@ def create_candidato():
         candidato = consultar_db(query)
 
         if len(candidato) > 0:
+            print("Candidato já cadastrado!")
             return response_format(True, 'Candidato já cadastrado!')
         else:
             query = QueryFactory.insert_query(
@@ -139,10 +145,16 @@ def create_candidato():
                 columns=['nome_candidato', 'email_candidato', 'senha_candidato'],
                 values=[nome, email, senha]
             )
-            inserir_db(query)
-            return response_format(False, 'Candidato criado com sucesso!', data)
+            result = inserir_db(query)
+            if result.error == False:
+                print("Candidato criada com sucesso!")
+                return response_format(False, 'Candidato criado com sucesso!', data)
+            else:
+                print("Erro ao criar Candidato!")
+                return response_format(True, result.message)
         
     except Exception as e:
+        print(f'Erro ao criar candidato: {str(e)}')
         return response_format(True, f'Erro ao criar candidato: {str(e)}')
 
 @app.route('/api/cadastroEmpresa', methods=['POST'])
@@ -160,6 +172,7 @@ def create_empresa():
         empresa = consultar_db(query)
 
         if len(empresa) > 0:
+            print("Empresa já cadastrada!")
             return response_format(True, 'Empresa já cadastrada!')
         else:
             query = QueryFactory.insert_query(
@@ -167,10 +180,15 @@ def create_empresa():
                 columns=['nome_empresa', 'email_empresa', 'senha_empresa', 'cnpj_empresa'],
                 values=[nome, email, senha, cnpj]
             )
-            inserir_db(query)
-            return response_format(False, 'Empresa criada com sucesso!', data)
-        
+            result = inserir_db(query)
+            if result.error == False:
+                print("Empresa criada com sucesso!")
+                return response_format(False, 'Empresa criada com sucesso!', data)
+            else:
+                print("Erro ao criar empresa!")
+                return response_format(True, result.message)
     except Exception as e:
+        print(f'Erro ao criar empresa: {str(e)}')
         return response_format(True, f'Erro ao criar empresa: {str(e)}')
 
 @app.route('/api/loginCandidato', methods=['POST'])
@@ -187,11 +205,18 @@ def send_data_candidato():
         
         reg = consultar_db(query)
         if len(reg) > 0:
-            df_bd = pd.DataFrame(reg).to_dict()
+            df_bd = pd.DataFrame(
+                reg, 
+                columns=['id_candidato', 'nome_candidato', 'email_candidato', 'telefone_candidato', 'cargo_candidato', 
+                'formacao_candidato', 'procura_candidato', 'imagem_candidato', 'curriculo_candidato'])
+            df_dict = df_bd.to_dict(orient='records')[0]  # Pega apenas o primeiro resultado
+            print(df_dict)
             return response_format(False, 'Login bem-sucedido', {'data': df_bd})
         else:
+            print('Não foi possível encontrar o candidato')
             return response_format(True, 'Não foi possível encontrar o candidato')
     except Exception as e:
+        print(f'Erro ao processar login: {str(e)}')
         return response_format(True, f'Erro ao processar login: {str(e)}')
     
 @app.route('/api/loginEmpresa', methods=['POST'])
@@ -208,7 +233,11 @@ def send_data_empresa():
         
         reg = consultar_db(query)
         if len(reg) > 0:
-            df_bd = pd.DataFrame(reg).to_dict()
+            df_bd = pd.DataFrame(
+                reg, 
+                columns=['id_empresa', 'nome_empresa', 'email_empresa', 'cnpj_empresa'])
+            df_dict = df_bd.to_dict(orient='records')[0]  # Pega apenas o primeiro resultado
+            print(df_dict)
             return response_format(False, 'Login bem-sucedido', {'data': df_bd})
         else:
             return response_format(True, 'Não foi possível encontrar a empresa')
@@ -300,7 +329,7 @@ def create_vaga():
         empresa = data['empresa']
 
         query = QueryFactory.insert_query(
-            table='vada',
+            table='vaga',
             columns=['empresa', 'nome_vaga', 'salario_vaga', 'tipo_vaga', 'descricao_vaga', 'requisitos_vaga'],
             values=[empresa, nome, salario, tipo, descricao, requisitos]
         )
@@ -309,6 +338,69 @@ def create_vaga():
         
     except Exception as e:
         return response_format(True, f'Erro ao criar vaga: {str(e)}')
+
+#buscar todas as vagas
+@app.route('/api/buscarVagas', methods=['GET'])
+def get_vagas():
+    try:
+        query = QueryFactory.select_query(
+            table='vaga'
+        )
+        reg = consultar_db(query)
+        if len(reg) > 0:
+            df_bd = pd.DataFrame(
+                reg, 
+                columns=['id_vaga', 'empresa', 'nome_vaga', 'salario_vaga', 'tipo_vaga', 'descricao_vaga', 'requisitos_vaga'])
+            df_dict = df_bd.to_dict(orient='records')
+            return response_format(False, 'Vagas encontradas', {'data': df_bd})
+        else:
+            return response_format(True, 'Não foi possível encontrar as vagas')
+    except Exception as e:
+        return response_format(True, f'Erro ao buscar vagas: {str(e)}')
+
+#buscar todas as vagas de uma empresa
+@app.route('/api/buscarVagasEmpresa', methods=['POST'])
+def get_vagas_empresa():
+    try:
+        data = request.json
+        empresa = data['empresa']
+        query = QueryFactory.select_query(
+            table='vaga',
+            where_clause=f"empresa = '{empresa}'"
+        )
+        reg = consultar_db(query)
+        if len(reg) > 0:
+            df_bd = pd.DataFrame(
+                reg, 
+                columns=['id_vaga', 'empresa', 'nome_vaga', 'salario_vaga', 'tipo_vaga', 'descricao_vaga', 'requisitos_vaga'])
+            df_dict = df_bd.to_dict(orient='records')
+            return response_format(False, 'Vagas encontradas', {'data': df_bd})
+        else:
+            return response_format(True, 'Não foi possível encontrar as vagas')
+    except Exception as e:
+        return response_format(True, f'Erro ao buscar vagas: {str(e)}')
+
+#buscar todas as vagas de um candidato
+@app.route('/api/buscarVagasCandidato', methods=['POST'])
+def get_vagas_candidato():
+    try:
+        data = request.json
+        candidato = data['candidato']
+        query = QueryFactory.select_query(
+            table='candidatura',
+            where_clause=f"candidato = '{candidato}'"
+        )
+        reg = consultar_db(query)
+        if len(reg) > 0:
+            df_bd = pd.DataFrame(
+                reg, 
+                columns=['id_candidato_vaga', 'candidato', 'vaga', 'status'])
+            df_dict = df_bd.to_dict(orient='records')
+            return response_format(False, 'Vagas encontradas', {'data': df_bd})
+        else:
+            return response_format(True, 'Não foi possível encontrar as vagas')
+    except Exception as e:
+        return response_format(True, f'Erro ao buscar vagas: {str(e)}')
 
 # Rodando a aplicação
 if __name__ == '__main__':
