@@ -1,12 +1,42 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import datetime
 import pandas as pd
 import psycopg2
-from datetime import datetime
 import cloudinary
 import cloudinary.uploader
 from cloudinary.utils import cloudinary_url
+from psycopg2 import sql
+import bcrypt
+from dotenv import load_dotenv
+import os
+
+# Carregar variáveis de ambiente
+load_dotenv()
+
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+
+CLOUD_NAME = os.getenv("CLOUD_NAME")
+API_KEY = os.getenv("API_KEY")
+API_SECRET = os.getenv("API_SECRET")
+
+# Função para hash de senha
+def hash_senha(senha):
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(senha.encode(), salt).decode()
+
+def verificar_senha(senha, hash_senha):
+    return bcrypt.checkpw(senha.encode(), hash_senha.encode())
+
+# Função de retorno padrão para sucesso e erro
+def response_format(error, message, data=None):
+    return jsonify({
+        'error': error,
+        'message': message,
+        'data': data
+    })
 
 class DatabaseConnection:
     _instance = None
@@ -16,10 +46,10 @@ class DatabaseConnection:
             try:
                 cls._instance = super(DatabaseConnection, cls).__new__(cls)
                 cls._instance.connection = psycopg2.connect(
-                    host='localhost',
-                    database='OpportunaBD',
-                    user='postgres',
-                    password='147258'
+                    host=DB_HOST,
+                    database=DB_NAME,
+                    user=DB_USER,
+                    password=DB_PASS
                 )
                 print("Conexão ao banco de dados estabelecida.")
             except Exception as e:
@@ -61,18 +91,24 @@ class QueryFactory:
 
 # Funções auxiliares para manipulação do banco de dados
 def consultar_db(query):
+    con = None
+    cur = None
     try:
         con = DatabaseConnection().get_connection()
         cur = con.cursor()
         cur.execute(query)
         recset = cur.fetchall()
-        cur.close()
         return recset
     except Exception as e:
         print(f"Erro na consulta: {e}")
-        con.rollback()  # Rollback da transação em caso de erro
-        cur.close()
+        if con:
+            con.rollback()
         return []
+    finally:
+        if cur:
+            cur.close()
+        if con and not con.closed:
+            con.close()
 
 def inserir_db(query):
     con = None
@@ -82,18 +118,17 @@ def inserir_db(query):
         cur = con.cursor()
         cur.execute(query)
         con.commit()
-        return response_format(True, 'Sucesso!')
+        return response_format(False, 'Sucesso!')
     except (Exception, psycopg2.DatabaseError) as error:
         print(f"Erro ao inserir no banco de dados: {error}")
         if con:
-            con.rollback()  # Rollback da transação em caso de erro
+            con.rollback()
         return response_format(True, f"Erro ao inserir no banco de dados: {error}")
     finally:
         if cur:
             cur.close()
-        if con:
+        if con and not con.closed:
             con.close()
-
 
 # Inicializando o Flask
 app = Flask(__name__)
@@ -101,9 +136,9 @@ CORS(app)
 
 # Configurações do Cloudinary
 cloudinary.config(
-  cloud_name = "dvks6kvfn", 
-  api_key = "949973423629945", 
-  api_secret = "uau5kTgXfthklnl1st74MoQzRA4"
+  cloud_name = CLOUD_NAME, 
+  api_key = API_KEY, 
+  api_secret = API_SECRET
 )
 
 def upload_image_pdf(img):
@@ -113,13 +148,6 @@ def upload_image_pdf(img):
 
     return image_url
 
-# Função de retorno padrão para sucesso e erro
-def response_format(error, message, data=None):
-    return jsonify({
-        'error': error,
-        'message': message,
-        'data': data
-    })
 
 ##################   ROTAS   ######################
 
