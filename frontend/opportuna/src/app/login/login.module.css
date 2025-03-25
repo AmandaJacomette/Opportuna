@@ -1,0 +1,97 @@
+.loginContainer {
+    display: flex;
+    height: 100vh;
+    background-color: #5CA085;
+  }
+  
+  .leftSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #5CA085;
+    color: white;
+    padding: 2rem;
+  }
+  
+  .brandTitle {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #3BF5AC;
+    margin-top: 1rem;
+  }
+  
+  .tagline {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .rightSection {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #E8F5E9;
+  }
+  
+  .loginCard {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  .loginTitle {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #F55B3B;
+  }
+  
+  .dropdown, .input {
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  
+  .loginButton {
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 1.5rem;
+    background-color: #5CA085;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .loginButton:hover {
+    background-color: #4a886f;
+  }
+  
+  .registerText {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #5CA085;
+  }
+  
+  .registerLink {
+    color: #F55B3B;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  
+  .registerLink:hover {
+    text-decoration: underline;
+  }
+  

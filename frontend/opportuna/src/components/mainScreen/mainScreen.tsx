@@ -18,7 +18,7 @@ const MainScreenComponent = () => {
           <div className={styles.navLinks}>
             <a href="#" className={styles.link}>Vagas</a>
             <a href="#" className={styles.link}>Cadastro</a>
-            <Button className={styles.button}>Login</Button>
+            <Button className={styles.button} onClick={() => window.location.href = "/login"}>Login</Button>
           </div>
         </div>
         
