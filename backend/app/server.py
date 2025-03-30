@@ -43,22 +43,28 @@ class DatabaseConnection:
 
     def __new__(cls):
         if cls._instance is None:
-            try:
-                cls._instance = super(DatabaseConnection, cls).__new__(cls)
-                cls._instance.connection = psycopg2.connect(
-                    host=DB_HOST,
-                    database=DB_NAME,
-                    user=DB_USER,
-                    password=DB_PASS
-                )
-                print("Conexão ao banco de dados estabelecida.")
-            except Exception as e:
-                print(f"Erro ao conectar ao banco de dados: {e}")
-                cls._instance = None
+            cls._instance = super(DatabaseConnection, cls).__new__(cls)
+            cls._instance._connect()
         return cls._instance
 
+    def _connect(self):
+        try:
+            self.connection = psycopg2.connect(
+                host=DB_HOST,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASS
+            )
+            print("Conexão ao banco de dados estabelecida.")
+        except Exception as e:
+            print(f"Erro ao conectar ao banco de dados: {e}")
+            self.connection = None
+
     def get_connection(self):
+        if self.connection is None or self.connection.closed:
+            self._connect()
         return self.connection
+
 
 class QueryFactory:
     
@@ -155,9 +161,9 @@ def upload_image_pdf(img):
 def create_candidato():
     try:
         data = request.json
-        nome = data['nome']
+        nome = data['name']
         email = data['email']
-        senha = data['senha']
+        senha = data['password']
 
         query = QueryFactory.select_query(
             'candidato', 
@@ -173,13 +179,11 @@ def create_candidato():
                 columns=['nome_candidato', 'email_candidato', 'senha_candidato'],
                 values=[nome, email, senha]
             )
-            result = inserir_db(query)
-            if result.error == False:
-                print("Candidato criada com sucesso!")
-                return response_format(False, 'Candidato criado com sucesso!', data)
-            else:
-                print("Erro ao criar Candidato!")
-                return response_format(True, result.message)
+            
+            inserir_db(query)
+
+            print("Candidato criada com sucesso!")
+            return response_format(False, 'Candidato criado com sucesso!', data)
         
     except Exception as e:
         print(f'Erro ao criar candidato: {str(e)}')
@@ -189,10 +193,10 @@ def create_candidato():
 def create_empresa():
     try:
         data = request.json
-        nome = data['nome']
+        nome = data['name']
         email = data['email']
         cnpj = data['cnpj']
-        senha = data['senha']
+        senha = data['password']
 
         query = QueryFactory.select_query(
             'empresa', 
@@ -209,12 +213,10 @@ def create_empresa():
                 values=[nome, email, senha, cnpj]
             )
             result = inserir_db(query)
-            if result.error == False:
-                print("Empresa criada com sucesso!")
-                return response_format(False, 'Empresa criada com sucesso!', data)
-            else:
-                print("Erro ao criar empresa!")
-                return response_format(True, result.message)
+            
+            print("Empresa criada com sucesso!")
+            return response_format(False, 'Empresa criada com sucesso!', data)
+            
     except Exception as e:
         print(f'Erro ao criar empresa: {str(e)}')
         return response_format(True, f'Erro ao criar empresa: {str(e)}')

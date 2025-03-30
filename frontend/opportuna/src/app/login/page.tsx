@@ -29,8 +29,7 @@ const OpportunaComponent = () => {
     <div className={styles.loginContainer}>
       {/* Left Section */}
       <div className={styles.leftSection}>
-        <Image src={imageLogoSimples} alt="Opportuna" width={120} height={120} />
-        <h1 className={styles.brandTitle}>Opportuna</h1>
+        <Image src={imageLogoSimples} alt="Opportuna" width={300} height={300} />
         <p className={styles.tagline}>Oportunidades que transformam vidas</p>
       </div>
 
@@ -66,7 +65,7 @@ const OpportunaComponent = () => {
             />
             <Button type="submit" className={styles.loginButton}>Entrar</Button>
           </form>
-          <p className={styles.registerText}>Não tem uma conta? <a href="#" className={styles.registerLink}>Cadastre-se</a></p>
+          <p className={styles.registerText}>Não tem uma conta? <a href="/cadastro" className={styles.registerLink}>Cadastre-se</a></p>
         </div>
       </div>
     </div>
