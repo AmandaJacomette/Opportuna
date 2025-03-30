@@ -5,8 +5,14 @@ import { Button } from '../../components/ui/button';
 import styles from './login.module.css';
 import imageLogoSimples from '../../../public/Images/Logos/LogoNomeSemFundo.png';
 import { useState } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../context/AuthContext';
 
 const OpportunaComponent = () => {
+  const { login } = useAuth();
+  const router = useRouter();
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [formData, setFormData] = useState({
     userType: 'Sou Candidato',
     username: '',
@@ -20,9 +26,27 @@ const OpportunaComponent = () => {
     });
   };
 
-  const handleSubmit = (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    let endpoint = 'http://localhost:5000';
+  
+    endpoint += formData.userType === 'Sou Empresa' ? '/api/loginEmpresa' : '/api/loginCandidato';
+
+    try {
+      const response = await axios.post(endpoint, formData);
+      if (response.data.error) {
+        setMessage({ type: 'error', text: response.data.message });
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        const userData = response.data.data; // Pega os dados do usuário da resposta
+        login(userData); // Salva no contexto e no LocalStorage
+        setMessage({ type: 'success', text: 'Login realizado com sucesso!' });
+        setTimeout(() => router.push('/login'), 2000);
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Erro ao conectar com o servidor' });
+      setTimeout(() => setMessage(null), 3000);
+    }
   };
 
   return (
@@ -68,6 +92,9 @@ const OpportunaComponent = () => {
           <p className={styles.registerText}>Não tem uma conta? <a href="/cadastro" className={styles.registerLink}>Cadastre-se</a></p>
         </div>
       </div>
+      {message && (
+        <div className={`${styles.popup} ${message.type === 'success' ? styles.success : styles.error}`}>{message.text}</div>
+      )}
     </div>
   );
 };

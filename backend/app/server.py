@@ -212,7 +212,7 @@ def create_empresa():
                 columns=['nome_empresa', 'email_empresa', 'senha_empresa', 'cnpj_empresa'],
                 values=[nome, email, senha, cnpj]
             )
-            result = inserir_db(query)
+            inserir_db(query)
             
             print("Empresa criada com sucesso!")
             return response_format(False, 'Empresa criada com sucesso!', data)
@@ -225,11 +225,13 @@ def create_empresa():
 def send_data_candidato():
     try:
         data = request.json
-        login = data['login']
-        senha = data['senha']
+        login = data['username']
+        senha = data['password']
         
         query = QueryFactory.select_query(
-            table='candidato', 
+            table='candidato',
+            columns="id_candidato, nome_candidato, email_candidato, telefone_candidato, cargo_candidato, "
+                    "formacao_candidato, procura_candidato, imagem_candidato, curriculo_candidato",
             where_clause=f"email_candidato = '{login}' AND senha_candidato = '{senha}'"
         )
         
@@ -241,7 +243,7 @@ def send_data_candidato():
                 'formacao_candidato', 'procura_candidato', 'imagem_candidato', 'curriculo_candidato'])
             df_dict = df_bd.to_dict(orient='records')[0]  # Pega apenas o primeiro resultado
             print(df_dict)
-            return response_format(False, 'Login bem-sucedido', {'data': df_bd})
+            return response_format(False, 'Login bem-sucedido', {'data': df_dict})
         else:
             print('Não foi possível encontrar o candidato')
             return response_format(True, 'Não foi possível encontrar o candidato')
@@ -253,11 +255,12 @@ def send_data_candidato():
 def send_data_empresa():
     try:
         data = request.json
-        login = data['login']
-        senha = data['senha']
+        login = data['username']
+        senha = data['password']
         
         query = QueryFactory.select_query(
             table='empresa', 
+            columns="id_empresa, nome_empresa, email_empresa, cnpj_empresa",
             where_clause=f"email_empresa = '{login}' AND senha_empresa = '{senha}'"
         )
         
@@ -268,7 +271,7 @@ def send_data_empresa():
                 columns=['id_empresa', 'nome_empresa', 'email_empresa', 'cnpj_empresa'])
             df_dict = df_bd.to_dict(orient='records')[0]  # Pega apenas o primeiro resultado
             print(df_dict)
-            return response_format(False, 'Login bem-sucedido', {'data': df_bd})
+            return response_format(False, 'Login bem-sucedido', {'data': df_dict})
         else:
             return response_format(True, 'Não foi possível encontrar a empresa')
     except Exception as e:

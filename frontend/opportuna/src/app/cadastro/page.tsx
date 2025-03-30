@@ -32,29 +32,6 @@ const CadastroComponent = () => {
     cnpj = cnpj.replace(/\D/g, '');
     if (cnpj.length !== 14) return false;
     
-    let tamanho = cnpj.length - 2;
-    let numeros = cnpj.substring(0, tamanho);
-    let digitos = cnpj.substring(tamanho);
-    let soma = 0;
-    let pos = tamanho - 7;
-    for (let i = tamanho; i >= 1; i--) {
-      soma += parseInt(numeros.charAt(tamanho - i), 10) * pos--;
-      if (pos < 2) pos = 9;
-    }
-    let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-    if (resultado !== parseInt(digitos.charAt(0))) return false;
-    
-    tamanho = tamanho + 1;
-    numeros = cnpj.substring(0, tamanho);
-    soma = 0;
-    pos = tamanho - 7;
-    for (let i = tamanho; i >= 1; i--) {
-      soma += parseInt(numeros.charAt(tamanho - i), 10) * pos--;
-      if (pos < 2) pos = 9;
-    }
-    resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
-    if (resultado !== parseInt(digitos.charAt(1))) return false;
-    
     return true;
   };
 
@@ -75,8 +52,8 @@ const CadastroComponent = () => {
         setTimeout(() => setMessage(null), 3000);
         return;
     }
-    if (formData.password.length < 6) {
-        setMessage({ type: 'error', text: 'A senha deve ter pelo menos 6 caracteres' });
+    if (formData.password.length < 6 && formData.password.length > 10)  {
+        setMessage({ type: 'error', text: 'A senha deve ter pelo menos 6 e no máximo 10 caracteres' });
         setTimeout(() => setMessage(null), 3000);
         return;
     }
