@@ -24,6 +24,7 @@ interface PerfilCandidatoProps {
 const PerfilCandidato: React.FC<PerfilCandidatoProps> = ({
     logoSrc = imageLogoSimples,
     headerItems = [
+      { type: 'link' as const, label: 'Início', href: '/dashboard?type=empresa' },
       { type: 'link' as const, label: 'Vagas', href: '/vagas' },
       { type: 'link' as const, label: 'Novas Vagas', href: '/novaVaga' },
       { type: 'button' as const, label: 'LogOff', href: '/' }
@@ -38,6 +39,7 @@ const PerfilCandidato: React.FC<PerfilCandidatoProps> = ({
       requisitos: '',
       empresa: (user && 'id_empresa' in user) ? user.id_empresa : 0,
     });
+    
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   
     const handleChange = (e: { target: { name: any; value: any; }; }) => {
@@ -47,7 +49,14 @@ const PerfilCandidato: React.FC<PerfilCandidatoProps> = ({
   
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
-      
+        if (!user || !("id_empresa" in user)) {
+          return; // Evita que o fetch rode com user indefinido
+        }
+        console.log(user);
+        if (user && 'id_empresa' in user) {
+          setFormData((prev) => ({ ...prev, empresa: user.id_empresa }));
+        }
+        console.log(formData);
         let endpoint = 'http://localhost:5000/api/novaVaga';
       
         try {

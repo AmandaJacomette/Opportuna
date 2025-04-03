@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
+import { format } from 'path';
 
 const OpportunaComponent = () => {
   const { login } = useAuth();

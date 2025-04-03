@@ -24,14 +24,16 @@ interface PerfilCandidatoProps {
 const PerfilCandidato: React.FC<PerfilCandidatoProps> = ({
     logoSrc = imageLogoSimples,
     headerItems = [
+      { type: 'link' as const, label: 'Início', href: '/dashboard?type=candidato' },
       { type: 'link' as const, label: 'Vagas', href: '/vagas' },
-      { type: 'link' as const, label: 'Minhas Vagas', href: '/minhas-vagas' },
+      { type: 'link' as const, label: 'Candidaturas', href: '/candidaturas' },
       { type: 'link' as const, label: 'Perfil', href: '/perfil' },
       { type: 'button' as const, label: 'LogOff', href: '/' }
     ],
   }) => {
     const { user, login, logout } = useAuth();
     const [formData, setFormData] = useState<{
+      userType: 'Candidato';
       id_candidato: number;
       nome_candidato: string;
       email_candidato: string;
@@ -42,6 +44,7 @@ const PerfilCandidato: React.FC<PerfilCandidatoProps> = ({
       imagem_candidato: string | File;
       curriculo_candidato: string | File;
     }>({
+      userType: 'Candidato',
       id_candidato: (user && 'id_candidato' in user) ? user.id_candidato : 0,
       nome_candidato: '',
       email_candidato: '',
@@ -57,6 +60,7 @@ const PerfilCandidato: React.FC<PerfilCandidatoProps> = ({
     useEffect(() => {
       if (user && 'id_candidato' in user) {
         setFormData({
+          userType: 'Candidato',
           id_candidato: user.id_candidato || 0,
           nome_candidato: user.nome_candidato || '',
           email_candidato: user.email_candidato || '',

@@ -242,6 +242,7 @@ def send_data_candidato():
                 columns=['id_candidato', 'nome_candidato', 'email_candidato', 'telefone_candidato', 'cargo_candidato', 
                 'formacao_candidato', 'procura_candidato', 'imagem_candidato', 'curriculo_candidato'])
             df_dict = df_bd.to_dict(orient='records')[0]  # Pega apenas o primeiro resultado
+            df_dict['userType'] = 'Candidato'
             print(df_dict)
             return response_format(False, 'Login bem-sucedido', {'data': df_dict})
         else:
@@ -270,6 +271,7 @@ def send_data_empresa():
                 reg, 
                 columns=['id_empresa', 'nome_empresa', 'email_empresa', 'cnpj_empresa'])
             df_dict = df_bd.to_dict(orient='records')[0]  # Pega apenas o primeiro resultado
+            df_dict['userType'] = 'Empresa'
             print(df_dict)
             return response_format(False, 'Login bem-sucedido', {'data': df_dict})
         else:
@@ -356,9 +358,30 @@ def get_vagas():
         if len(reg) > 0:
             df_bd = pd.DataFrame(
                 reg, 
-                columns=['id_vaga', 'empresa', 'nome_vaga', 'salario_vaga', 'tipo_vaga', 'descricao_vaga', 'requisitos_vaga'])
+                columns=['id_vaga', 'nome_vaga', 'salario_vaga', 'tipo_vaga', 'descricao_vaga', 'requisitos_vaga', 'empresa'])
+
+            # Processa os requisitos para transformá-los em arrays
+            df_bd['requisitos_vaga'] = df_bd['requisitos_vaga'].apply(lambda x: x.split(', ') if isinstance(x, str) else [])
+
+            # Consulta o nome da empresa para cada vaga
+            empresa_ids = df_bd['empresa'].unique()  # Obtém IDs únicos de empresas
+            empresa_query = QueryFactory.select_query(
+                table='empresa',
+                columns="id_empresa, nome_empresa",
+                where_clause=f"id_empresa IN ({', '.join(map(str, empresa_ids))})"
+            )
+            empresas = consultar_db(empresa_query)
+            
+            # Cria um dicionário para mapear IDs de empresas para seus nomes
+            empresa_dict = {emp[0]: emp[1] for emp in empresas}
+            print(df_bd['empresa'].map(empresa_dict))
+            # Adiciona o nome da empresa ao DataFrame
+            df_bd['nome_empresa'] = df_bd['empresa'].map(empresa_dict)
+
+            # Converte o DataFrame para um dicionário
             df_dict = df_bd.to_dict(orient='records')
-            return response_format(False, 'Vagas encontradas', {'data': df_bd})
+            
+            return response_format(False, 'Vagas encontradas', {'data': df_dict})
         else:
             return response_format(True, 'Não foi possível encontrar as vagas')
     except Exception as e:
@@ -392,22 +415,137 @@ def get_vagas_candidato():
     try:
         data = request.json
         candidato = data['candidato']
+
+        # Consulta para buscar as vagas relacionadas às candidaturas do candidato
+        query = QueryFactory.select_query(
+            table='candidatura INNER JOIN vaga ON candidatura.vaga = vaga.id_vaga',
+            columns="candidatura.id_candidatura, candidatura.etapa, vaga.id_vaga, vaga.nome_vaga, vaga.salario_vaga, vaga.tipo_vaga, vaga.descricao_vaga, vaga.requisitos_vaga, vaga.empresa",
+            where_clause=f"candidatura.candidato = '{candidato}'"
+        )
+        reg = consultar_db(query)
+
+        if len(reg) > 0:
+            # Converte os resultados em um DataFrame
+            df_bd = pd.DataFrame(
+                reg,
+                columns=['id_candidatura', 'etapa', 'id_vaga', 'nome_vaga', 'salario_vaga', 'tipo_vaga', 'descricao_vaga', 'requisitos_vaga', 'empresa']
+            )
+
+            # Processa os requisitos para transformá-los em arrays
+            df_bd['requisitos_vaga'] = df_bd['requisitos_vaga'].apply(lambda x: x.split(', ') if isinstance(x, str) else [])
+
+            # Consulta o nome da empresa para cada vaga
+            empresa_ids = df_bd['empresa'].unique()  # Obtém IDs únicos de empresas
+            empresa_query = QueryFactory.select_query(
+                table='empresa',
+                columns="id_empresa, nome_empresa",
+                where_clause=f"id_empresa IN ({', '.join(map(str, empresa_ids))})"
+            )
+            empresas = consultar_db(empresa_query)
+
+            # Cria um dicionário para mapear IDs de empresas para seus nomes
+            empresa_dict = {emp[0]: emp[1] for emp in empresas}
+
+            # Adiciona o nome da empresa ao DataFrame
+            df_bd['nome_empresa'] = df_bd['empresa'].map(empresa_dict)
+
+            # Converte o DataFrame para um dicionário
+            df_dict = df_bd.to_dict(orient='records')
+
+            return response_format(False, 'Vagas encontradas', {'data': df_dict})
+        else:
+            return response_format(True, 'Não foi possível encontrar as vagas')
+    except Exception as e:
+        print(f"Erro ao buscar vagas: {str(e)}")
+        return response_format(True, f"Erro ao buscar vagas: {str(e)}")
+    
+#buscar todas as candidaturas de uma vaga
+@app.route('/api/buscarCandidatosVaga', methods=['POST'])
+def get_candidatos_vaga():
+    try:
+        data = request.json
+        vaga = data['vaga']
         query = QueryFactory.select_query(
             table='candidatura',
-            where_clause=f"candidato = '{candidato}'"
+            where_clause=f"vaga = '{vaga}'"
         )
         reg = consultar_db(query)
         if len(reg) > 0:
             df_bd = pd.DataFrame(
                 reg, 
-                columns=['id_candidato_vaga', 'candidato', 'vaga', 'status'])
+                columns=['id_candidato_vaga', 'etapa', 'candidato', 'vaga'])
             df_dict = df_bd.to_dict(orient='records')
-            return response_format(False, 'Vagas encontradas', {'data': df_bd})
+            return response_format(False, 'Candidatos encontrados', {'data': df_dict})
         else:
-            return response_format(True, 'Não foi possível encontrar as vagas')
+            return response_format(True, 'Não foi possível encontrar os candidatos')
     except Exception as e:
-        return response_format(True, f'Erro ao buscar vagas: {str(e)}')
+        return response_format(True, f'Erro ao buscar candidatos: {str(e)}')
+    
+#atualizar status de candidatura
+@app.route('/api/atualizarStatusCandidatura', methods=['POST'])
+def update_status_candidatura():
+    try:
+        data = request.json
+        id_candidatura = data['id_candidatura']
+        status = data['status']
 
+        query = QueryFactory.update_query(
+            table='candidatura',
+            updates={'etapa': status},
+            where_clause=f"id_candidato_vaga = {id_candidatura}"
+        )
+        inserir_db(query)
+        
+        return response_format(False, 'Status atualizado com sucesso')
+    except Exception as e:
+        return response_format(True, f'Erro ao atualizar status: {str(e)}')
+
+# Candidatar-se a uma vaga
+@app.route('/api/candidatarVaga', methods=['POST'])
+def candidatar_vaga():
+
+    try:
+        data = request.json
+        candidato = data['candidato']
+        vaga = data['vaga']
+
+        # Verifica se o candidato já se candidatou à vaga
+        query_verificar = QueryFactory.select_query(
+            table='candidatura',
+            where_clause=f"candidato = '{candidato}' AND vaga = '{vaga}'"
+        )
+        candidatura_existente = consultar_db(query_verificar)
+        
+        if len(candidatura_existente) > 0:
+            return response_format(True, 'Você já se candidatou a esta vaga.')
+
+        query = QueryFactory.insert_query(
+            table='candidatura',
+            columns=['candidato', 'vaga', 'etapa'],
+            values=[candidato, vaga, 'Análise de Curriculo']
+        )
+        inserir_db(query)
+        
+        return response_format(False, 'Candidatura realizada com sucesso')
+    except Exception as e:
+        return response_format(True, f'Erro ao se candidatar: {str(e)}')
+
+#excluir vaga
+@app.route('/api/excluirVaga', methods=['POST'])
+def delete_vaga():
+    try:
+        data = request.json
+        vaga = data['id_vaga']
+
+        query = QueryFactory.delete_query(
+            table='vaga',
+            where_clause=f"id_vaga = {vaga}"
+        )
+        inserir_db(query)
+        
+        return response_format(False, 'Vaga excluída com sucesso')
+    except Exception as e:
+        return response_format(True, f'Erro ao excluir vaga: {str(e)}')    
 # Rodando a aplicação
 if __name__ == '__main__':
     app.run(debug=True)
