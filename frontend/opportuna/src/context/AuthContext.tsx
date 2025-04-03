@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 // Definição do tipo dos dados do usuário
 interface CandidatoData {
+  userType?: 'Candidato';
   id_candidato: number;
   nome_candidato: string;
   email_candidato: string;
@@ -16,6 +17,7 @@ interface CandidatoData {
 }
 
 interface EmpresaData {
+    userType?: 'Empresa';
     id_empresa: number;
     nome_empresa: string;
     email_empresa: string;

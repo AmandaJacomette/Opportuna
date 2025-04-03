@@ -1,0 +1,159 @@
+/* Ajuste de layout para a listagem e detalhes das vagas */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;700&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Instrument Sans', sans-serif;
+    background-color: #222;
+  }
+  
+  .container {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f3f3f3;
+      padding: 1.5rem;
+      font-family: 'Instrument Sans', sans-serif;
+    }
+    
+    .card {
+      width: 100%;
+      background: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    .logoContainer {
+      color: #3BF5AC;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    
+    .navLinks {
+      display: flex;
+      gap: 3rem;
+      text-align: center;
+      align-items: center;
+    }
+    
+    .link {
+      color: red;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  
+  .buttonLogOff {
+    background-color: #F55B3B;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+  }
+  
+  .buttonLogOff:hover {
+    background-color: #f55a3bb0;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column; /* Organiza os elementos verticalmente */
+    /*align-items: center; /* Centraliza horizontalmente */
+    justify-content: center; /* Centraliza verticalmente */
+    width: 50%; /* Define uma largura fixa ou relativa para o formulário */
+    max-width: 700px; /* Define um limite máximo de largura */
+    background: white; /* Fundo branco para o formulário */
+    padding: 2rem; /* Espaçamento interno */
+    border-radius: 8px; /* Bordas arredondadas */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra para destacar o formulário */
+    margin-left: 30%;
+    margin-top: 5%;
+  }
+  
+  .label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #5CA085; /* Cor verde suave */
+    margin-bottom: 0.5rem;
+    display: block; /* Garante que a label fique acima do input */
+  }
+  
+  .input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #5CA085;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #222;
+  }
+  
+  .saveButton {
+    background-color: #5CA085;
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+    width: 100%; /* Largura total do botão */
+    margin-top: 1rem;
+  }
+  
+  .saveButton:hover {
+    background-color: #4A8975;
+  }
+
+  .title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #F55B3B; /* Cor verde suave */
+    margin-bottom: 1rem; /* Espaçamento abaixo do título */
+    align-self: center; /* Centraliza o título horizontalmente */
+  }
+
+  .popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem;
+    border-radius: 5px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.5s;
+    z-index: 2;
+  }
+  
+  .success {
+    background: #3BF5AC;
+    color: white;
+  }
+  
+  .error {
+    background: #F55B3B;
+    color: white;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
