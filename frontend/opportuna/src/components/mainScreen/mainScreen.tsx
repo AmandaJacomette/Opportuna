@@ -7,6 +7,7 @@ import imageLogoSimples from '../../../public/Images/Logos/LogoSemFundo.png';
 import styles from './mainScreen.module.css';
 
 const MainScreenComponent = () => {
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>
@@ -16,8 +17,8 @@ const MainScreenComponent = () => {
             <Image src={imageLogoSimples} alt="Opportuna" width={50} height={50} className="rounded-full" />
           </div>
           <div className={styles.navLinks}>
-            <a href="#" className={styles.link}>Vagas</a>
-            <a href="#" className={styles.link}>Cadastro</a>
+            <a href="/login" className={styles.link}>Vagas</a>
+            <a href="/cadastro" className={styles.link}>Cadastro</a>
             <Button className={styles.button} onClick={() => window.location.href = "/login"}>Login</Button>
           </div>
         </div>
@@ -30,8 +31,8 @@ const MainScreenComponent = () => {
             <br />
             <p className={styles.description}>Venha você também fazer parte desse universo de oportunidades!</p>
             <div className={styles.buttonGroup}>
-              <Button className={styles.button}>Sou Candidato</Button>
-              <Button className={styles.button}>Sou Empresa</Button>
+              <Button className={styles.button} onClick={() => window.location.href = "/login"}>Sou Candidato</Button>
+              <Button className={styles.button} onClick={() => window.location.href = "/login"}>Sou Empresa</Button>
             </div>
           </div>
           <div className={styles.imageContainer}>

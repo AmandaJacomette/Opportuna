@@ -11,8 +11,8 @@ interface CandidatoData {
   cargo_candidato?: string | null;
   formacao_candidato?: string | null;
   procura_candidato?: string | null;
-  imagem_candidato?: string | null;
-  curriculo_candidato?: string | null;
+  imagem_candidato?: string | File | null;
+  curriculo_candidato?: string | File | null;
 }
 
 interface EmpresaData {

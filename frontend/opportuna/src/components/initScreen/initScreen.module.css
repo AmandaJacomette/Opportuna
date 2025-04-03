@@ -42,18 +42,19 @@
 
 .navLinks {
   display: flex;
-  gap: 1rem;
+  gap: 3rem;
   text-align: center;
+  align-items: center;
 }
 
 .link {
   color: red;
   font-weight: bold;
   text-decoration: none;
-  padding-top: 3%;
 }
 
-.button {
+.button,
+.buttonPage {
   background-color: #5CA085;
   color: white;
   font-weight: bold;
@@ -62,7 +63,27 @@
   transition: background 0.3s ease;
 }
 
-.button:hover {
+.buttonPage {
+  width: 50%;
+  margin-left: 10%;
+  text-align: center;
+}
+
+.buttonLogOff {
+  background-color: #F55B3B;
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.buttonLogOff:hover {
+  background-color: #f55a3bb0;
+}
+
+.button:hover, 
+.buttonPage:hover {
   background-color: #4A8975;
 }
 
@@ -119,7 +140,4 @@
     width: 50%;
   }
 
-  .buttonGroup {
-    flex-direction: row;
-  }
 }

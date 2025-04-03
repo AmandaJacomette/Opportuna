@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import imagePrin from '../../../public/Images/image.png';
 import imageLogoSimples from '../../../public/Images/Logos/LogoSemFundo.png';
 import styles from './initScreen.module.css';
+import { useAuth } from '../../context/AuthContext';
 
 // Definição dos tipos possíveis para os itens do header
 interface HeaderItem {
@@ -12,7 +13,6 @@ interface HeaderItem {
   label: string;
   href?: string;
 }
-
 
 // Definição das propriedades esperadas pelo componente
 interface InitScreenProps {
@@ -31,7 +31,7 @@ interface InitScreenProps {
 const InitScreenComponent: React.FC<InitScreenProps> = ({
   title = 'Opportuna',
   subtitle = 'Oportunidades que transformam vidas',
-  description = 'Venha você também fazer parte desse universo de oportunidades!',
+  description = 'Bem vindo ao seu novo site de vagas favorito! Por onde deseja começar?',
   button1Text = 'Sou Candidato',
   button2Text = 'Sou Empresa',
   button1Link = '#',
@@ -44,6 +44,9 @@ const InitScreenComponent: React.FC<InitScreenProps> = ({
     { type: 'button', label: 'Login', href: '#' }
   ],
 }) => {
+
+  const { logout } = useAuth();
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>
@@ -60,7 +63,7 @@ const InitScreenComponent: React.FC<InitScreenProps> = ({
                 )}
                 {item.type === 'button' && (
                   <a href={item.href}>
-                    <Button className={styles.button}>{item.label}</Button>
+                    <Button className={styles.buttonLogOff} onClick={() => logout()}>{item.label}</Button>
                   </a>
                 )}
                 {item.type === 'text' && <span className={styles.text}>{item.label}</span>}
@@ -77,10 +80,10 @@ const InitScreenComponent: React.FC<InitScreenProps> = ({
             <p className={styles.description}>{description}</p>
             <div className={styles.buttonGroup}>
               <a href={button1Link}>
-                <Button className={styles.button}>{button1Text}</Button>
+                <Button className={styles.buttonPage}>{button1Text}</Button>
               </a>
               <a href={button2Link}>
-                <Button className={styles.button}>{button2Text}</Button>
+                <Button className={styles.buttonPage}>{button2Text}</Button>
               </a>
             </div>
           </div>

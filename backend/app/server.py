@@ -280,42 +280,15 @@ def send_data_empresa():
 @app.route('/api/editarPerfil', methods=['POST'])
 def edit_perfil():
     try:
-
-#        //Ao submeter o formulário de criação de usuário
-#  //Tratamento diferente devido ao envio de arquivo para o back 
-#  const handleSubmitModal = (event) => { # type: ignore
-#    event.preventDefault();
-
-#    const data = new FormData();
-#    data.append('nome', formSignIn.nome);
-#    data.append('usuario', formSignIn.usuario);
-#    data.append('senha', formSignIn.senha);
-#    data.append('foto', formSignIn.foto);
-##
-#    axios.post(URL_API + 'criaUsuario', data, {
-#      headers: {
-#        'Content-Type': 'multipart/form-data',
-#      },
-#    })
-#    .then(response => {
-#      console.log('Resposta do servidor:', response.data);
-#      setButtonPopup(false);
-#      window.alert("Usuário Criado!");
-#      clearForm();
-#    })
-#    .catch(error => {
-#      console.error('Erro ao enviar dados:', error);
-#    });
-#  };
-
-        img = request.files['foto']
-        pdf = request.files['curriculo']
-        email = request.form['usuario']
-        nome = request.form['nome'] 
-        cargo = request.form['cargo']
-        telefone = request.form['telefone']
-        formacao = request.form['formacao']
-        procura = request.form['procura']
+        
+        img = request.files['imagem_candidato']
+        pdf = request.files['curriculo_candidato']
+        email = request.form['email_candidato']
+        nome = request.form['nome_candidato'] 
+        cargo = request.form['cargo_candidato']
+        telefone = request.form['telefone_candidato']
+        formacao = request.form['formacao_candidato']
+        procura = request.form['procura_candidato']
         
         updates = {}
 
@@ -343,7 +316,7 @@ def edit_perfil():
             updates=updates,
             where_clause=f"email_candidato = '{email}'"
         )
-        
+        print(update_query)
         inserir_db(update_query)
         
         return response_format(False, 'Candidato atualizado com sucesso')

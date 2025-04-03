@@ -42,7 +42,7 @@
 
 .navLinks {
   display: flex;
-  gap: 1rem;
+  gap: 3rem;
   text-align: center;
 }
 
@@ -60,6 +60,7 @@
   padding: 0.5rem 1rem;
   border-radius: 8px;
   transition: background 0.3s ease;
+  width: 33%;
 }
 
 .button:hover {

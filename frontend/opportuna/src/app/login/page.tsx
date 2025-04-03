@@ -4,9 +4,9 @@ import Image from 'next/image';
 import { Button } from '../../components/ui/button';
 import styles from './login.module.css';
 import imageLogoSimples from '../../../public/Images/Logos/LogoNomeSemFundo.png';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 
 const OpportunaComponent = () => {
@@ -39,9 +39,10 @@ const OpportunaComponent = () => {
         setTimeout(() => setMessage(null), 3000);
       } else {
         const userData = response.data.data; // Pega os dados do usuário da resposta
-        login(userData); // Salva no contexto e no LocalStorage
+        login(userData.data); // Salva no contexto e no LocalStorage
         setMessage({ type: 'success', text: 'Login realizado com sucesso!' });
-        setTimeout(() => router.push('/login'), 2000);
+        const user = formData.userType === 'Sou Candidato' ? 'candidato' : 'empresa';
+        setTimeout(() => router.push(`/dashboard?type=${user}`), 2000);
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Erro ao conectar com o servidor' });
