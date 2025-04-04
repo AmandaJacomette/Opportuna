@@ -45,7 +45,7 @@ const VagaListComponent: React.FC<VagaListComponentProps> = ({ vagas, isEmpresa,
       });
   
       if (!response.data.error) {
-        setMessage({ type: 'success', text: 'Perfil Atualizado com sucesso!' });
+        setMessage({ type: 'success', text: 'Candidatura feita com sucesso!' });
         setTimeout(() => setMessage(null), 3000);
       } else {
         setMessage({ type: 'error', text: response.data.message });
@@ -79,6 +79,28 @@ const VagaListComponent: React.FC<VagaListComponentProps> = ({ vagas, isEmpresa,
     } catch (error) {
       console.error("Erro ao excluir vaga:", error);
       setMessage({ type: 'error', text: 'Erro ao conectar com o servidor' });
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const handleEnter = async (vagaId: number) => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/buscarCandidatosVaga", {
+        vaga: vagaId,
+      });
+  
+      if (response.data && response.data.data) {
+        const candidatos = response.data.data;
+        console.log(candidatos);
+        // Redireciona para a página /candidatos com os dados dos candidatos
+        router.push(`/candidatos?candidatos=${encodeURIComponent(JSON.stringify(candidatos))}`);
+      } else {
+        setMessage({ type: 'error', text: 'Nenhum candidato encontrado para esta vaga.' });
+        setTimeout(() => setMessage(null), 3000);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar candidatos:", error);
+      setMessage({ type: 'error', text: 'Erro ao conectar com o servidor.' });
       setTimeout(() => setMessage(null), 3000);
     }
   };
@@ -141,7 +163,7 @@ const VagaListComponent: React.FC<VagaListComponentProps> = ({ vagas, isEmpresa,
                 {isEmpresa ? (
                   <>
                     <Button className={styles.deleteButton} onClick={() => handleDelete(selectedVaga.id_vaga)}>Excluir</Button>
-                    <Button className={styles.enterButton}>Entrar</Button>
+                    <Button className={styles.enterButton} onClick={() => handleEnter(selectedVaga.id_vaga)}>Entrar</Button>
                   </>
                 ) : (
                   <Button className={styles.candidateButton} onClick={() => user.id_candidato && handleCandidatura(user.id_candidato, selectedVaga.id_vaga)}>Candidatar</Button>

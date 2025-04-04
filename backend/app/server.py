@@ -147,12 +147,26 @@ cloudinary.config(
   api_secret = API_SECRET
 )
 
-def upload_image_pdf(img):
-    result = cloudinary.uploader.upload(img)
-    # O URL da imagem na nuvem será retornado
-    image_url = result.get("secure_url")
+def upload_image_pdf(file):
+    try:
+        # Verifica o tipo de arquivo pelo nome ou conteúdo
+        if file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            # Caso seja uma imagem
+            result = cloudinary.uploader.upload(file, resource_type="image")
+        elif file.filename.lower().endswith('.pdf'):
+            # Caso seja um PDF
+            result = cloudinary.uploader.upload(file, resource_type="raw")
+        else:
+            raise Exception("Tipo de arquivo não suportado. Apenas imagens e PDFs são permitidos.")
 
-    return image_url
+        print("Resultado do upload:", result)  # Log para depuração
+        image_url = result.get("secure_url")
+        if not image_url:
+            raise Exception("URL segura não encontrada no resultado do upload")
+        return image_url
+    except Exception as e:
+        print(f"Erro ao fazer upload para o Cloudinary: {e}")
+        return None
 
 
 ##################   ROTAS   ######################
@@ -465,15 +479,24 @@ def get_candidatos_vaga():
     try:
         data = request.json
         vaga = data['vaga']
+         # Consulta para buscar os candidatos relacionados à vaga
         query = QueryFactory.select_query(
-            table='candidatura',
-            where_clause=f"vaga = '{vaga}'"
+            table='candidatura INNER JOIN candidato ON candidatura.candidato = candidato.id_candidato',
+            columns="candidato.id_candidato, candidato.nome_candidato, candidato.formacao_candidato, "
+                    "candidato.cargo_candidato, candidato.procura_candidato, candidato.curriculo_candidato, "
+                    "candidatura.etapa",
+            where_clause=f"candidatura.vaga = '{vaga}'"
         )
         reg = consultar_db(query)
+
         if len(reg) > 0:
+            # Converte os resultados em um DataFrame
             df_bd = pd.DataFrame(
-                reg, 
-                columns=['id_candidato_vaga', 'etapa', 'candidato', 'vaga'])
+                reg,
+                columns=['id_candidato', 'nome_candidato', 'formacao_candidato', 'cargo_candidato',
+                         'procura_candidato', 'curriculo_candidato', 'etapa']
+            )
+
             df_dict = df_bd.to_dict(orient='records')
             return response_format(False, 'Candidatos encontrados', {'data': df_dict})
         else:
@@ -546,6 +569,44 @@ def delete_vaga():
         return response_format(False, 'Vaga excluída com sucesso')
     except Exception as e:
         return response_format(True, f'Erro ao excluir vaga: {str(e)}')    
+
+#excluir candidatura
+@app.route('/api/excluirCandidatura', methods=['POST'])
+def delete_candidatura():
+    try:
+        data = request.json
+        candidatura = data['id_candidato']
+
+        query = QueryFactory.delete_query(
+            table='candidatura',
+            where_clause=f"candidato = {candidatura}"
+        )
+        inserir_db(query)
+        
+        return response_format(False, 'Candidatura excluída com sucesso')
+    except Exception as e:
+        return response_format(True, f'Erro ao excluir candidatura: {str(e)}')
+
+#editar etapa de candidatura
+@app.route('/api/editarEtapaCandidatura', methods=['POST'])
+def edit_etapa_candidatura():
+    try:
+        data = request.json
+        candidatura = data['id_candidato']
+        etapa = data['etapa']
+
+        query = QueryFactory.update_query(
+            table='candidatura',
+            updates={'etapa': etapa},
+            where_clause=f"candidato = {candidatura}"
+        )
+        inserir_db(query)
+        
+        return response_format(False, 'Etapa de candidatura atualizada com sucesso')
+    except Exception as e:
+        return response_format(True, f'Erro ao atualizar etapa: {str(e)}')
+
+
 # Rodando a aplicação
 if __name__ == '__main__':
     app.run(debug=True)
